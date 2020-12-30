@@ -29,9 +29,7 @@ async def handle(request):
             decoder=json.loads,
             schema='pg_catalog'
         )
-        # Open a transaction.
         async with connection.transaction():
-            # Run the query passing the request argument.
             results = await connection.fetch(
                 '''SELECT json_agg(json_build_object(
         'code', t.code,
@@ -45,13 +43,10 @@ async def handle(request):
 
 
 async def init_app():
-    """Initialize the application server."""
     app = web.Application()
-    # Create a database connection pool
     app['pool'] = await asyncpg.create_pool(user=os.getenv('DB_USER'), password=os.getenv('DB_PASSWORD'),
                                             database=os.getenv('DB_NAME'), host=os.getenv('DB_HOST'),
                                             port=os.getenv('DB_PORT'))
-    # Configure service routes
     app.router.add_route('GET', '/stock_returns', handle)
     return app
 
