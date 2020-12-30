@@ -5,6 +5,7 @@ from lib.logtaker import logger
 import os
 from dotenv import load_dotenv
 import json
+
 load_dotenv()
 
 
@@ -19,9 +20,6 @@ async def handle(request):
     codes = []
     for code in _code.split(','):
         codes.append(code)
-
-
-
 
     # Take a connection from the pool.
     async with pool.acquire() as connection:
@@ -38,7 +36,8 @@ async def handle(request):
                 '''SELECT json_agg(json_build_object(
         'code', t.code,
         'd_change', t.d_change
-    )) results  FROM stock_returns_by_given_dates_v3('{%s}', '%s', '%s') t;''' % (','.join(codes), _start_date, _end_date))
+    )) results  FROM stock_returns_by_given_dates_v3('{%s}', '%s', '%s') t;''' % (
+                ','.join(codes), _start_date, _end_date))
 
             logger.info(results[0].get('results'))
             return web.json_response(
